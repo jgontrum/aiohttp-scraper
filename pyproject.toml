@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "aiohttp-scraper"
+version = "0.1.0"
+description = "An asyncronous HTTP client built for web scraping."
+authors = ["Johannes Gontrum <j@gontrum.me>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+aiohttp = "^3.6.1"
+aiodns = "^2.0.0"
+
+[tool.poetry.dev-dependencies]
+black = {version = "^18.3-alpha.4",allows-prereleases = true}
+pre-commit = "^1.17"
+flake8 = "^3.7"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
