@@ -9,6 +9,8 @@ license = "MIT"
 python = "^3.7"
 aiohttp = "^3.6.1"
 aiodns = "^2.0.0"
+aioredis = "^1.2.0"
+tldextract = "^2.2.1"
 
 [tool.poetry.dev-dependencies]
 black = {version = "^18.3-alpha.4",allows-prereleases = true}
