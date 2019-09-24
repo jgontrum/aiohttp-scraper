@@ -25,16 +25,20 @@ class ScraperSession(ClientSession):
         self.use_random_user_agent = use_random_user_agent or bool(user_agents)
         self.user_agents = user_agents or USER_AGENTS
 
-    async def get_json(self, url: str) -> dict:
+    async def get_json(self, url: str, **kwargs) -> dict:
         return await (
             await self._request(
-                METH_GET, url, expect_json=True, expected_mime_type="application/json"
+                METH_GET,
+                url,
+                expect_json=True,
+                expected_mime_type="application/json",
+                **kwargs,
             )
         ).json()
 
-    async def get_html(self, url: str) -> str:
+    async def get_html(self, url: str, **kwargs) -> str:
         return await (
-            await self._request(METH_GET, url, expected_mime_type="text/html")
+            await self._request(METH_GET, url, expected_mime_type="text/html", **kwargs)
         ).text()
 
     async def _request(
