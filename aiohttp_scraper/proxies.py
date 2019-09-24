@@ -96,7 +96,7 @@ class Proxies:
         self._redis_client = None
 
         self._proxies = [
-            Proxy(url, window_size_in_minutes=1, max_requests_per_window=30)
+            Proxy(url, window_size_in_minutes, max_requests_per_window)
             for url in self._proxy_urls
         ]
 
