@@ -1,6 +1,7 @@
 import asyncio
 import datetime
 import json
+from random import shuffle
 from typing import List, Optional, Tuple
 
 import aioredis
@@ -27,8 +28,6 @@ class Proxy:
         self.status_codes: List[Tuple[int, datetime.datetime]] = []
         self.wait_until: Optional[datetime.datetime] = None
 
-        print(f"setup proxy {self._clean_url}")
-
     @property
     def _clean_url(self) -> str:
         return self._url.replace("http://", "").replace(":", "_")
@@ -44,9 +43,9 @@ class Proxy:
 
     async def get_number_of_free_slots(self, domain: str, redis: Redis) -> int:
         recent_requests, status_code = await asyncio.gather(
-            redis.keys(f"scrape_proxy:{self._clean_url}:{domain}:requests:*"),
+            redis.keys(f"scrape_proxy:{domain}:{self._clean_url}:requests:*"),
             redis.lindex(
-                key=f"scrape_proxy:{self._clean_url}:{domain}:status_codes", index=0
+                key=f"scrape_proxy:{domain}:{self._clean_url}:status_codes", index=0
             ),
         )
 
@@ -66,11 +65,11 @@ class Proxy:
     async def get_url(self, domain: str, redis: Redis) -> str:
         now = datetime.datetime.utcnow().isoformat().replace(":", "-")
         await redis.set(
-            key=f"scrape_proxy:{self._clean_url}:{domain}:requests:{now}",
+            key=f"scrape_proxy:{domain}:{self._clean_url}:requests:{now}",
             value=datetime.datetime.utcnow().isoformat(),
         )
         await redis.pexpire(
-            key=f"scrape_proxy:{self._clean_url}:{domain}:requests:{now}",
+            key=f"scrape_proxy:{domain}:{self._clean_url}:requests:{now}",
             timeout=self.window_size_in_minutes * 60 * 1000,
         )
 
@@ -78,7 +77,7 @@ class Proxy:
 
     async def register_status_code(self, status_code: int, domain: str, redis: Redis):
         await redis.lpush(
-            key=f"scrape_proxy:{self._clean_url}:{domain}:status_codes",
+            key=f"scrape_proxy:{domain}:{self._clean_url}:status_codes",
             value=self._encode_status((status_code, datetime.datetime.utcnow())),
         )
 
@@ -125,9 +124,10 @@ class Proxies:
                 ]
             )
 
-            proxies = sorted(
-                zip(free_slots, self._proxies), key=lambda d: d[0], reverse=True
-            )
+            slots_and_proxies = list(zip(free_slots, self._proxies))
+            shuffle(slots_and_proxies)
+
+            proxies = sorted(slots_and_proxies, key=lambda d: d[0], reverse=True)
 
             if proxies[0][0] > 0:
                 return await proxies[0][1].get_url(domain, self._redis_client)

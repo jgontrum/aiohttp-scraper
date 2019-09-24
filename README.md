@@ -14,6 +14,7 @@ Because scraping is messy.
 - Exponential backoff to wait between repeated requests
 - Validates the MIME-type
 - Helper functions to receive HTML and JSON
+- Random UserAgent
 
 ### Proxies
 - Manage a pool of rotating proxies
