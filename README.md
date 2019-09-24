@@ -7,7 +7,7 @@ Because scraping is messy.
 
 ## Features
 
-###`ScraperSession`
+### ScraperSession
 - Drop-in replacement for AIOHTTP's `ClientSession`
 - Catches Exceptions caused by a request
 - Retries a given number of times
@@ -15,7 +15,7 @@ Because scraping is messy.
 - Validates the MIME-type
 - Helper functions to receive HTML and JSON
 
-###`Proxies`
+### Proxies
 - Manage a pool of rotating proxies
 - LeastConn-style proxy selection
 - Uses a moving time window to throttle requests per domain and proxy
