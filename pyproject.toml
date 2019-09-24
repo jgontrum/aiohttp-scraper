@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aiohttp-scraper"
-version = "0.1.0"
+version = "0.1.1"
 description = "An asyncronous HTTP client built for web scraping."
 authors = ["Johannes Gontrum <j@gontrum.me>"]
 license = "MIT"
