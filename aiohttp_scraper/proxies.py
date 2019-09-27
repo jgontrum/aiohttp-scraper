@@ -109,10 +109,12 @@ class Proxies:
         self._redis_client = await aioredis.create_redis_pool(
             address=self.redis_uri, **(self.redis_kwargs or {})
         )
+        await self.cleanup()
 
     async def select_proxy(self, url: str) -> str:
         if not self._redis_client:
             await self.setup()
+        await self.cleanup()
 
         domain = tldextract.extract(url).domain
 
@@ -144,3 +146,23 @@ class Proxies:
                     status_code, domain, self._redis_client
                 )
                 break
+
+    async def cleanup(self):
+        keys = await self._redis_client.keys(f"scrape_proxy:*requests*")
+        timestamps = [
+            datetime.datetime.strptime(
+                k.decode().split(":")[-1], "%Y-%m-%dT%H-%M-%S.%f"
+            )
+            for k in keys
+        ]
+
+        window_end = datetime.datetime.utcnow() - datetime.timedelta(
+            minutes=self.window_size_in_minutes
+        )
+
+        invalid_timestamps = [
+            key for key, ts in zip(keys, timestamps) if ts < window_end
+        ]
+
+        if invalid_timestamps:
+            await self._redis_client.delete(*invalid_timestamps)

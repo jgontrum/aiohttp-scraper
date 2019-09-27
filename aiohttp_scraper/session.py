@@ -67,9 +67,12 @@ class ScraperSession(ClientSession):
             try:
                 response = await super()._request(*args, **kwargs)
 
-                await self.proxies.register_status_code(
-                    url=args[1], status_code=response.status, proxy_url=kwargs["proxy"]
-                )
+                if self.proxies:
+                    await self.proxies.register_status_code(
+                        url=args[1],
+                        status_code=response.status,
+                        proxy_url=kwargs["proxy"],
+                    )
 
                 if not 200 <= response.status < 300:
                     raise Unsuccessful(f"Status code is {response.status}")
